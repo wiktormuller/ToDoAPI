@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using ToDoAPI.Models;
+using ToDoAPI.Services;
 
 namespace ToDoAPI
 {
@@ -31,6 +32,9 @@ namespace ToDoAPI
 
             // Register the database context
             services.AddDbContext<TodoContext>(opt => opt.UseInMemoryDatabase("TodoList"));
+
+            //Register DI services
+            services.AddScoped<ITodoService, TodoService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

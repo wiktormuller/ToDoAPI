@@ -22,6 +22,7 @@ namespace ToDoAPI.Services
                 throw new ArgumentNullException(nameof(todoItem));
             }
             _context.TodoItems.Add(todoItem);
+            _context.SaveChanges();
         }
 
         public void DeleteTodoItem(TodoItem todoItem)
@@ -32,11 +33,12 @@ namespace ToDoAPI.Services
             }
 
             _context.TodoItems.Remove(todoItem);
+            _context.SaveChanges();
         }
 
         public IEnumerable<TodoItem> GetAllTodoItems()
         {
-            var todoItems = _context.TodoItems.ToList();
+            var todoItems = _context.TodoItems;
 
             return todoItems;
         }

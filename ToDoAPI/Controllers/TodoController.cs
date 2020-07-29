@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ToDoAPI.Models;
+using ToDoAPI.Services;
 
 namespace ToDoAPI.Controllers
 {
@@ -12,18 +13,19 @@ namespace ToDoAPI.Controllers
     [ApiController]
     public class TodoController : ControllerBase
     {
-        private readonly TodoContext _context;
+        private readonly ITodoService _service;
 
-        public TodoController(TodoContext context)
+        public TodoController(ITodoService service)
         {
-            _context = context;
+            
+            _service = service;
         }
 
         //GET api/TodoItems/5
         [HttpGet("{id}")]
         public async Task<ActionResult<TodoItem>> GetTodoItemById(Guid id)
         {
-            var todoItem = await _context.TodoItems.FindAsync(id); //Why FirstOrDefaultAsync doesn't work?
+            var todoItem = _service.GetTodoItemById(id); //Why FirstOrDefaultAsync doesn't work?
 
             if(todoItem == null)
             {
@@ -37,7 +39,7 @@ namespace ToDoAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TodoItem>>> GetTodoItems()
         {
-            var todoItems = await _context.TodoItems.ToListAsync();
+            var todoItems = _service.GetAllTodoItems().ToList();
             return todoItems;
         }
 
@@ -45,8 +47,7 @@ namespace ToDoAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<TodoItem>> CreateTodoItem(TodoItem todoItem)
         {
-            _context.TodoItems.Add(todoItem);
-            await _context.SaveChangesAsync();
+            _service.CreateTodoItem(todoItem);
 
             return CreatedAtAction(nameof(GetTodoItemById), new { id = todoItem.Id }, todoItem);
         }
@@ -85,22 +86,21 @@ namespace ToDoAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult<TodoItem>> DeleteTodoItem(Guid id)
         {
-            var todoItem = await _context.TodoItems.FindAsync(id);
+            var todoItem = _service.GetTodoItemById(id);
 
             if(todoItem == null)
             {
                 return NotFound();
             }
 
-            _context.TodoItems.Remove(todoItem);
-            await _context.SaveChangesAsync();
+            _service.DeleteTodoItem(todoItem);
 
             return NoContent();
         }
 
         private bool TodoItemExists(Guid id)
         {
-            return _context.TodoItems.Any(e => e.Id == id);
+            return _service.GetAllTodoItems().Any(e => e.Id == id);
         }
     }
 }
